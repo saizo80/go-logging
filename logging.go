@@ -1,0 +1,137 @@
+package gologging
+
+import (
+	"fmt"
+	"os"
+	"path/filepath"
+	"runtime"
+	"time"
+)
+
+const (
+	reset  = "\033[0m"
+	yellow = "\033[0;33m"
+	blue   = "\033[0;34m"
+	gray   = "\033[0;95m"
+	red    = "\033[0;31m"
+	DEBUG  = 0
+	INFO   = 10
+	WARN   = 20
+	ERROR  = 30
+	FATAL  = 40
+)
+
+type Logger struct {
+	level    int
+	filePath string
+	stdout   bool
+}
+
+type Option struct {
+	filePath string
+	stdout   bool
+}
+
+func New(level int, option ...Option) *Logger {
+	stdoutBool := true
+	filePath := ""
+	if len(option) > 0 {
+		stdoutBool = option[0].stdout
+		filePath = option[0].filePath
+	}
+	return &Logger{
+		level:    level,
+		filePath: filePath,
+		stdout:   stdoutBool,
+	}
+}
+
+func (l *Logger) print(level string, message string, color string, args ...interface{}) {
+	now := time.Now()
+	message = fmt.Sprintf(message, args...)
+	fmt.Printf("[%s%s%s] %s %s\n",
+		color,
+		level,
+		reset,
+		now.Format("2006-01-02 15:04:05,000"),
+		message,
+	)
+}
+
+func (l *Logger) printToFile(level string, message string, args ...interface{}) {
+	now := time.Now()
+	message = fmt.Sprintf(message, args...)
+	fileObj, err := os.OpenFile(l.filePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+	if err != nil {
+		panic(err)
+	}
+	defer fileObj.Close()
+
+	// get the file name that is calling this function
+	_, fileName, _, _ := runtime.Caller(2)
+	fileName = filepath.Base(fileName)
+
+	_, err = fmt.Fprintf(fileObj, "%s - %s - %s - %s\n",
+		now.Format("2006-01-02 15:04:05,000"),
+		fileName,
+		level,
+		message,
+	)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func (l *Logger) SetLevel(level int) {
+	l.level = level
+}
+
+func (l *Logger) SetFilePath(filePath string) {
+	l.filePath = filePath
+}
+
+func (l *Logger) SetStdout(stdout bool) {
+	l.stdout = stdout
+}
+
+// debug log
+func (l *Logger) Debug(message string, args ...interface{}) {
+	if l.level <= DEBUG {
+		if l.stdout {
+			l.print("DEBUG", message, gray, args...)
+		}
+	}
+	if l.filePath != "" {
+		l.printToFile("DEBUG", message, args...)
+	}
+}
+
+// info log
+func (l *Logger) Info(message string, args ...interface{}) {
+	if l.level <= INFO && l.stdout {
+		l.print("INFO", message, blue, args...)
+	}
+	if l.filePath != "" {
+		l.printToFile("INFO", message, args...)
+	}
+}
+
+// warn log
+func (l *Logger) Warn(message string, args ...interface{}) {
+	if l.level <= WARN && l.stdout {
+		l.print("WARN", message, yellow, args...)
+	}
+	if l.filePath != "" {
+		l.printToFile("WARN", message, args...)
+	}
+}
+
+// error log
+func (l *Logger) Error(message string, args ...interface{}) {
+	if l.level <= ERROR && l.stdout {
+		l.print("ERROR", message, red, args...)
+	}
+	if l.filePath != "" {
+		l.printToFile("ERROR", message, args...)
+	}
+}
