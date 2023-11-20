@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"runtime"
 	"time"
 )
 
@@ -68,8 +67,11 @@ func (l *Logger) printToFile(level string, message string, args ...interface{}) 
 	defer fileObj.Close()
 
 	// get the file name that is calling this function
-	_, fileName, _, _ := runtime.Caller(2)
-	fileName = filepath.Base(fileName)
+	exe, err := os.Executable()
+	if err != nil {
+		panic(err)
+	}
+	fileName := filepath.Base(exe)
 
 	_, err = fmt.Fprintf(fileObj, "%s - %s - %s - %s\n",
 		now.Format("2006-01-02 15:04:05,000"),
