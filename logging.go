@@ -28,16 +28,16 @@ type Logger struct {
 }
 
 type Option struct {
-	filePath string
-	stdout   bool
+	FilePath string
+	Stdout   bool
 }
 
 func New(level int, option ...Option) *Logger {
 	stdoutBool := true
 	filePath := ""
 	if len(option) > 0 {
-		stdoutBool = option[0].stdout
-		filePath = option[0].filePath
+		stdoutBool = option[0].Stdout
+		filePath = option[0].FilePath
 	}
 	return &Logger{
 		level:    level,

@@ -5,15 +5,15 @@ import (
 )
 
 func TestDebug(t *testing.T) {
-	log := New(DEBUG, Option{filePath: "test.log"})
+	log := New(DEBUG, Option{FilePath: "test.log"})
 	log.Debug("This is a debug message")
 	errorCode := 100
 	log.Debug("This is a debug message with error code: %d", errorCode)
 
-	log = New(INFO, Option{filePath: "test.log"})
+	log = New(INFO, Option{FilePath: "test.log"})
 	log.Debug("This debug message should not be printed to stdout, but should be printed to file")
 
-	log = New(DEBUG, Option{stdout: false})
+	log = New(DEBUG, Option{Stdout: false})
 	log.Debug("This debug message should not be printed")
 }
 
@@ -26,7 +26,7 @@ func TestInfo(t *testing.T) {
 	log = New(WARN)
 	log.Info("This info message should not be printed")
 
-	log = New(INFO, Option{stdout: false})
+	log = New(INFO, Option{Stdout: false})
 	log.Info("This info message should not be printed")
 }
 
@@ -39,7 +39,7 @@ func TestWarn(t *testing.T) {
 	log = New(ERROR)
 	log.Warn("This warn message should not be printed")
 
-	log = New(WARN, Option{stdout: false})
+	log = New(WARN, Option{Stdout: false})
 	log.Warn("This warn message should not be printed")
 }
 
@@ -49,6 +49,6 @@ func TestError(t *testing.T) {
 	errorCode := 100
 	log.Error("This is a error message with error code: %d", errorCode)
 
-	log = New(ERROR, Option{stdout: false})
+	log = New(ERROR, Option{Stdout: false})
 	log.Error("This error message should not be printed")
 }
