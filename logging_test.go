@@ -5,10 +5,13 @@ import (
 )
 
 func TestDebug(t *testing.T) {
-	log := New(DEBUG, Option{FilePath: "test.log"})
+	log := New(DEBUG, Option{FilePath: "test.log", Stdout: true})
 	log.Debug("This is a debug message")
 	errorCode := 100
 	log.Debug("This is a debug message with error code: %d", errorCode)
+	log.Debug(errorCode)
+	mapData := map[string]string{"name": "gologging", "version": "1.0.0"}
+	log.Debug(mapData)
 
 	log = New(INFO, Option{FilePath: "test.log"})
 	log.Debug("This debug message should not be printed to stdout, but should be printed to file")
